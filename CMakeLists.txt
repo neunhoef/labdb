@@ -6,9 +6,30 @@ find_package(Boost 1.65.0 REQUIRED system thread)
 
 add_subdirectory(3rdParty)
 
-add_executable(asio-sv asio-sv.cc)
-add_executable(asio-cl asio-cl.cc)
-add_executable(mini mini.cc)
+add_executable(labdb
+  src/labdb.cpp
+)
+
+target_include_directories(labdb PRIVATE
+  ${OPENSSL_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${nghttp2_SOURCE_DIR}/src/includes
+  3rdParty/docopt.cpp
+)
+
+target_link_libraries(labdb
+  docopt
+  nghttp2
+  nghttp2_asio
+  ${OPENSSL_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
+# Other, experimental stuff:
+
+add_executable(asio-sv asio-sv.cpp)
+add_executable(asio-cl asio-cl.cpp)
+add_executable(mini mini.cpp)
 
 target_include_directories(asio-sv PRIVATE
   ${OPENSSL_INCLUDE_DIRS}
