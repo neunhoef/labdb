@@ -7,10 +7,19 @@ static const char USAGE[] =
 R"(LabDB.
 
   Usage:
-    labdb
+    labdb [-h] [--version] [-b BIND] [-p PORT] [-t THR] [-a ADDR] [-c CERT]
+          [-k KEY]
 
   Options:
-    -h --help      Show this screen.
+    -h --help               Only show this screen.
+    --version               Only show the version.
+    -a ADDR --address=ADDR  Advertised address as URL.
+    -b BIND --bind=BIND     Bind address for server [default: 0.0.0.0].
+    -c CERT --cert=CERT     File name of certificate chain file (PEM) [default: certs/server.chain.pem].
+    -k KEY --key=KEY        File name of private key file (PEM) [default: certs/server.key].
+    -p PORT --port=PORT     Bind port for server [default: 9000].
+    -t THR --threads=THR    Number of threads [default: 1].
+
 )";
 
 #include <nghttp2/asio_http2_server.h>
@@ -24,20 +33,15 @@ int main(int argc, char *argv[]) {
                          { argv + 1, argv + argc },
                          true,               // show help if requested
                          "LabDB 0.1");       // version string
+  for (auto const& p : args) {
+    std::cout << "Attribute:" << p.first << " Value:" << p.second << std::endl;
+  }
   try {
-    // Check command line arguments.
-    if (argc < 4) {
-      std::cerr
-          << "Usage: mini <address> <port> <threads> [<private-key-file> "
-          << "<cert-file>]\n";
-      return 1;
-    }
-
     boost::system::error_code ec;
 
-    std::string addr = argv[1];
-    std::string port = argv[2];
-    std::size_t num_threads = std::stoi(argv[3]);
+    std::string addr = args["--bind"].asString();
+    std::string port = args["--port"].asString();
+    std::size_t num_threads = args["--threads"].asLong();
 
     http2 server;
 
@@ -48,10 +52,12 @@ int main(int argc, char *argv[]) {
       res.end("hello, world\n");
     });
 
-    if (argc >= 6) {
+    std::string key = args["--key"].asString();
+    std::string cert = args["--cert"].asString();
+    if (!key.empty() && !cert.empty()) {
       boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
-      tls.use_private_key_file(argv[4], boost::asio::ssl::context::pem);
-      tls.use_certificate_chain_file(argv[5]);
+      tls.use_private_key_file(key, boost::asio::ssl::context::pem);
+      tls.use_certificate_chain_file(cert);
 
       configure_tls_context_easy(ec, tls);
 
