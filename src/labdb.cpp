@@ -2,6 +2,9 @@
 #include <string>
 
 #include <docopt.h>
+#include <velocypack/Builder.h>
+#include <velocypack/Slice.h>
+#include <velocypack/velocypack-aliases.h>
 
 static const char USAGE[] =
 R"(LabDB.
@@ -49,7 +52,13 @@ int main(int argc, char *argv[]) {
 
     server.handle("/hello", [](const request &req, const response &res) {
       res.write_head(200, {{"x-mini-info", {"hicks"}}});
-      res.end("hello, world\n");
+      VPackBuilder b;
+      { VPackObjectBuilder guard(&b);
+        b.add("a", VPackValue(1));
+        b.add("b", VPackValue("abc"));
+        b.add("c", VPackValue(true));
+      }
+      res.end(b.slice().toJson());
     });
 
     std::string key = args["--key"].asString();

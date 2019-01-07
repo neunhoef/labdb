@@ -15,12 +15,14 @@ target_include_directories(labdb PRIVATE
   ${Boost_INCLUDE_DIRS}
   ${nghttp2_SOURCE_DIR}/src/includes
   3rdParty/docopt.cpp
+  3rdParty/velocypack/include
 )
 
 target_link_libraries(labdb
   docopt
   nghttp2
   nghttp2_asio
+  velocypack
   ${OPENSSL_LIBRARIES}
   ${Boost_LIBRARIES}
 )
