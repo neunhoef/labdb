@@ -16,6 +16,7 @@ target_include_directories(labdb PRIVATE
   ${nghttp2_SOURCE_DIR}/src/includes
   3rdParty/docopt.cpp
   3rdParty/velocypack/include
+  ${ROCKSDB_INCLUDE_DIRS}
 )
 
 target_link_libraries(labdb
@@ -23,6 +24,7 @@ target_link_libraries(labdb
   nghttp2
   nghttp2_asio
   velocypack
+  rocksdb
   ${OPENSSL_LIBRARIES}
   ${Boost_LIBRARIES}
 )
