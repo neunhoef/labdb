@@ -8,6 +8,7 @@ add_subdirectory(3rdParty)
 
 add_executable(labdb
   src/labdb.cpp
+  src/uuid.cpp
 )
 
 target_include_directories(labdb PRIVATE

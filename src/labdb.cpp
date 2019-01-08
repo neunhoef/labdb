@@ -6,6 +6,8 @@
 #include <velocypack/Slice.h>
 #include <velocypack/velocypack-aliases.h>
 
+#include "uuid.h"
+
 static const char USAGE[] =
 R"(LabDB.
 
@@ -36,6 +38,7 @@ int main(int argc, char *argv[]) {
                          { argv + 1, argv + argc },
                          true,               // show help if requested
                          "LabDB 0.1");       // version string
+  std::cout << "My UUID is " << getUUID() << std::endl;
   for (auto const& p : args) {
     std::cout << "Attribute:" << p.first << " Value:" << p.second << std::endl;
   }
