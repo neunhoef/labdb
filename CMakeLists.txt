@@ -18,6 +18,7 @@ target_include_directories(labdb PRIVATE
   3rdParty/docopt.cpp
   3rdParty/velocypack/include
   ${ROCKSDB_INCLUDE_DIRS}
+  3rdParty/spdlog/include
 )
 
 target_link_libraries(labdb
