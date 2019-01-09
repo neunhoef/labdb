@@ -13,7 +13,7 @@ R"(LabDB.
 
   Usage:
     labdb [-h] [--version] [-b BIND] [-p PORT] [-t THR] [-a ADDR] [-c CERT]
-          [-k KEY]
+          [-k KEY] [-d DBDIR]
 
   Options:
     -h --help               Only show this screen.
@@ -21,6 +21,7 @@ R"(LabDB.
     -a ADDR --address=ADDR  Advertised address as URL.
     -b BIND --bind=BIND     Bind address for server [default: 0.0.0.0].
     -c CERT --cert=CERT     File name of certificate chain file (PEM) [default: certs/server.chain.pem].
+    -d DBDIR --dbdir=DBDIR  Database directory [default: data].
     -k KEY --key=KEY        File name of private key file (PEM) [default: certs/server.key].
     -p PORT --port=PORT     Bind port for server [default: 9000].
     -t THR --threads=THR    Number of threads [default: 1].
@@ -38,10 +39,20 @@ int main(int argc, char *argv[]) {
                          { argv + 1, argv + argc },
                          true,               // show help if requested
                          "LabDB 0.1");       // version string
-  std::cout << "My UUID is " << getUUID() << std::endl;
+
+  // Database directory:
+  std::string dbdir = args["--dbdir"].asString();
+  mkdir(dbdir.c_str(), 0755);  // ignore error if it exists
+  
+  // UUID:
+  std::string theUUID = readOrMakeUUID(dbdir);
+  std::cout << "My UUID is " << theUUID << std::endl;
+
+#if 0
   for (auto const& p : args) {
     std::cout << "Attribute:" << p.first << " Value:" << p.second << std::endl;
   }
+#endif
   try {
     boost::system::error_code ec;
 
