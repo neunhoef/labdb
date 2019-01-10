@@ -11,3 +11,6 @@ fi
 if test ! -d rocksdb ; then
     git clone https://github.com/facebook/rocksdb
 fi
+if test ! -d spdlog ; then
+    git clone https://github.com/gabime/spdlog
+fi
