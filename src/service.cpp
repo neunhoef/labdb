@@ -13,7 +13,7 @@
 using namespace nghttp2::asio_http2;
 using namespace nghttp2::asio_http2::server;
 
-void runService(ServerConfig& config,
+void runService(std::shared_ptr<Peers> peers,
                 std::size_t num_threads,
                 std::shared_ptr<spdlog::logger> log) {
 
@@ -35,18 +35,20 @@ void runService(ServerConfig& config,
       res.end(b.slice().toJson());
     });
 
-    if (config.encryption) {
+    std::shared_ptr<ServerConfig> config = peers->find(peers->myUUID());
+
+    if (config->encryption) {
       boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
-      tls.use_private_key_file(config.keyFile, boost::asio::ssl::context::pem);
-      tls.use_certificate_chain_file(config.crtFile);
+      tls.use_private_key_file(config->keyFile, boost::asio::ssl::context::pem);
+      tls.use_certificate_chain_file(config->crtFile);
 
       configure_tls_context_easy(ec, tls);
 
-      if (server.listen_and_serve(ec, tls, config.bindAddr, config.bindPort)) {
+      if (server.listen_and_serve(ec, tls, config->bindAddr, config->bindPort)) {
         log->error("Error: {}", ec.message());
       }
     } else {
-      if (server.listen_and_serve(ec, config.bindAddr, config.bindPort)) {
+      if (server.listen_and_serve(ec, config->bindAddr, config->bindPort)) {
         log->error("Error: {}", ec.message());
       }
     }

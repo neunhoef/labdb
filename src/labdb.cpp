@@ -9,6 +9,7 @@
 #include "uuid.h"
 #include "service.h"
 #include "serverconfig.h"
+#include "peers.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -28,6 +29,7 @@ R"(LabDB.
     -b BIND --bind=BIND       Bind address for server [default: https://0.0.0.0:9000].
     -c CERT --cert=CERT       File name of certificate chain file (PEM) [default: certs/server.chain.pem].
     -d DBDIR --dbdir=DBDIR    Database directory [default: data].
+    -j LEADER --join=LEADER   Leader address to join cluster.
     -k KEY --key=KEY          File name of private key file (PEM) [default: certs/server.key].
     -l LOG --log=LOG          File name for the log [default: -].
     -p PUBADDR --pub=PUBADDR  Bind port for server.
@@ -69,20 +71,24 @@ int main(int argc, char *argv[]) {
   log->info("My UUID is {}", theUUID);
 
   // Server config:
-  ServerConfig config;
+  ServerConfig config(theUUID);
   if (!config.parseURL(args["--bind"].asString())) {
     log->critical("Cannot parse URL given for --bind: {}",
                   args["--bind"].asString());
     _exit(2);
   }
   config.advAddr = args["--addr"] ? args["--addr"].asString() : "";
-  if (args["--pub"]) {
-    config.pubAddr = args["--pub"].asString();
-  } else {
-    config.pubAddr = config.advAddr;
-  }
+  config.pubAddr = args["--pub"] ? args["--pub"].asString() : config.advAddr;
   config.keyFile = args["--key"].asString();
   config.crtFile = args["--cert"].asString();
+
+  // Peers:
+  std::shared_ptr<Peers> peers 
+      = std::make_shared<Peers>(theUUID,!args["--join"]);
+  peers->update(std::make_shared<ServerConfig>(config));
+  if (args["--join"]) {
+    // Join the cluster here by sending a hello request
+  }
 
   // Show command line arguments in log if verbose:
   if (args["--verbose"].asBool()) {
@@ -97,7 +103,7 @@ int main(int argc, char *argv[]) {
   log->flush();
 
   // Start service, so far, this is crash only:
-  runService(config, args["--threads"].asLong(), log);
+  runService(peers, args["--threads"].asLong(), log);
 
   return 0;
 }

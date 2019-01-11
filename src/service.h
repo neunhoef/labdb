@@ -6,9 +6,9 @@
 #include <string>
 #include <spdlog/spdlog.h>
 
-#include "serverconfig.h"
+#include "peers.h"
 
-void runService(ServerConfig& config,
+void runService(std::shared_ptr<Peers> peers,
                 std::size_t num_threads,
                 std::shared_ptr<spdlog::logger> log);
 

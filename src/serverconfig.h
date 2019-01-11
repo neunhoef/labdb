@@ -10,6 +10,7 @@
 #include <velocypack/velocypack-aliases.h>
 
 struct ServerConfig {
+  std::string myUUID;     // UUID string for this server
   bool        encryption; // true for TLS
   std::string bindAddr;   // bind address
   std::string bindPort;   // bind port
@@ -18,7 +19,7 @@ struct ServerConfig {
   std::string keyFile;    // name for TLS key file
   std::string crtFile;    // name for TLS crt file
 
-  ServerConfig() : encryption(true) {}
+  ServerConfig(std::string const& myUUID) : myUUID(myUUID), encryption(true) {}
 
   bool parseURL(std::string const& url);
   // Parses an URL for encryption, bindAddr and bindPort, ignores others.

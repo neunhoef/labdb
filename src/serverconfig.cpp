@@ -25,6 +25,7 @@ bool ServerConfig::parseURL(std::string const& url) {
 
 void ServerConfig::toBuilder(VPackBuilder& b) {
   { VPackObjectBuilder guard(&b);
+    b.add("myUUID",     VPackValue(myUUID));
     b.add("encryption", VPackValue(encryption));
     b.add("bindAddr",   VPackValue(bindAddr));
     b.add("bindPort",   VPackValue(bindPort));
@@ -40,7 +41,13 @@ bool ServerConfig::fromSlice(VPackSlice s) {
     return false;
   }
 
-  VPackSlice ss = s.get("encryption");
+  VPackSlice ss = s.get("myUUID");
+  if (!ss.isString()) {
+    return false;
+  }
+  myUUID = ss.copyString();
+
+  ss = s.get("encryption");
   if (!ss.isBool()) {
     return false;
   }
